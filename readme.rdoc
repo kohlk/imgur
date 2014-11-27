@@ -1,0 +1,61 @@
+= imgur
+
+A simple ruby interface to the imgur image hosting service (http://imgur.com). This is a nice alternative to uploading images and not having to deal with RMagick bs.
+
+== Requirements
+
+* Grab a imgur api key : http://imgur.com/register/api/
+
+== Examples
+
+  # Uploading an image to imgur from the filesystem
+
+  img = Imgur::API.new 'YOURAPIKEY'
+  uploaded_img = img.upload_file '/path/to/your/test.jpg'
+  # should return a hash like:
+  # => {"small_thumbnail"=>"http://imgur.com/NfuKFs.png",
+        "original_image"=>"http://imgur.com/NfuKF.png",
+        "large_thumbnail"=>"http://imgur.com/NfuKFl.png",
+        "delete_hash"=>"VAiPkk5NoQ", "imgur_page"=>"http://imgur.com/NfuKF",
+        "delete_page"=>"http://imgur.com/delete/VAiPkk5NoQ",
+        "image_hash"=>"NfuKF"}
+  # now you can do something like (if you're using rails):
+  <%= image_tag uploaded_img["small_thumbnail"] %>
+
+  # Here's an example using Sinatra and Sequel, requires sinatra-more
+
+  # Everything's included into one action for brevity, although you can probably extract the file functions to a helper for organizational purposes
+
+  post '/upload_photo' do
+    # let's assume we have this is in our form
+    # <%= file_field_tag :photo %>
+    file_name = params[:photo][:filename].split(".").first.gsub!(/[^a-z0-9]+/i, '_')
+    file_type = params[:photo][:filename].split(".").last
+    tmp_file_path = File.join(APP_ROOT,"public/images/tmp/#{file_name}.#{file_type}")
+    FileUtils.mv params[:photo][:tempfile].path, tmp_file_path
+
+    unless params["photo"].blank? || params["photo"].nil?
+      @uploaded_img = IMGUR.upload_file tmp_file_path
+    end
+
+    @photo = Photo.new(:photo => @uploaded_img)
+    @photo.save
+
+    redirect '/results'
+  end
+
+
+== Note on Patches/Pull Requests
+
+* Fork the project.
+* Make your feature addition or bug fix.
+* Add tests for it. This is important so I don't break it in a
+  future version unintentionally.
+* Commit, do not mess with rakefile, version, or history.
+  (if you want to have your own version, that is fine but
+  bump version in a commit by itself I can ignore when I pull)
+* Send me a pull request. Bonus points for topic branches.
+
+== Copyright
+
+Copyright (c) 2009 jdp. See LICENSE for details.
