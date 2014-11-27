@@ -1,7 +1,6 @@
 ruby "2.1.4"
 source 'https://rubygems.org'
 gem 'sinatra', '>= 1.4.5'
-gem 'shotgun', '>= 0.9'
 gem 'imgur', '>= 0.2.0'
 gem 'crack', '>= 0.4.2'
 gem 'curb', '>= 0.8.6'
@@ -14,6 +13,3 @@ group :development do
   gem 'shotgun', '>= 0.9'
 end
 
-group :production do
-  gem 'pg'
-end
